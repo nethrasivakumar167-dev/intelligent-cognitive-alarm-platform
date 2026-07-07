@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FaBrain, FaHome, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { authService } from "../../services/authService";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const logout = useAuthStore(state => state.logout);
 
   const handleLogout = () => {
-    authService.logout();
+    logout();
     navigate("/login", { replace: true });
   };
 

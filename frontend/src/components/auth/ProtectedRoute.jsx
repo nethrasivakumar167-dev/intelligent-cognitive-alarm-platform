@@ -1,9 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { authService } from "../../services/authService";
+import { useAuthStore } from "../../store/useAuthStore";
 
 // Wraps protected routes. If there's no session, bounce to /login.
-// This is the piece that's usually missing when "dashboard doesn't show up" —
-// either this guard isn't wired into the route tree, or login never calls navigate().
 export default function ProtectedRoute() {
-  return authService.isAuthenticated() ? <Outlet /> : <Navigate to="/login" replace />;
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }

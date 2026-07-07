@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaUser, FaEnvelope, FaLock, FaBrain } from "react-icons/fa";
-import { authService } from "../services/authService";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ export default function Register() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const register = useAuthStore(state => state.register);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -27,10 +28,10 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await authService.register(form);
+      await register(form.username, form.email, form.password);
       navigate("/login", { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.detail || err.message);
     } finally {
       setLoading(false);
     }

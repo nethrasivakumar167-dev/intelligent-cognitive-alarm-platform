@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   FaPlus,
   FaBell,
@@ -9,25 +10,48 @@ import {
   FaQuestionCircle,
   FaChevronRight,
 } from "react-icons/fa";
-import { authService } from "../services/authService";
-
-// Mock data — swap for a real fetch once the backend is ready.
-const alarms = [
-  { id: 1, time: "06:30 AM", task: "Math Challenge", status: "active", icon: FaCalculator },
-  { id: 2, time: "08:00 AM", task: "Memory Puzzle", status: "tomorrow", icon: FaPuzzlePiece },
-  { id: 3, time: "09:30 PM", task: "Logic Quiz", status: "inactive", icon: FaQuestionCircle },
-];
+import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import { apiClient } from "../api/client";
 
 const statusLabel = {
-  active: "Active",
-  tomorrow: "Tomorrow",
-  inactive: "Inactive",
+  true: "Active",
+  false: "Inactive",
+};
+
+const getCategoryIcon = (category) => {
+  switch (category?.toLowerCase()) {
+    case "math":
+      return FaCalculator;
+    case "memory":
+      return FaPuzzlePiece;
+    case "logic":
+    default:
+      return FaQuestionCircle;
+  }
 };
 
 export default function Dashboard() {
-  const user = authService.getCurrentUser();
+  const user = useAuthStore(state => state.user);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+
+  const [alarms, setAlarms] = useState([]);
+
+  useEffect(() => {
+    const fetchAlarms = async () => {
+      try {
+        const res = await apiClient.get('/alarms');
+        setAlarms(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch alarms", err);
+      }
+    };
+    fetchAlarms();
+  }, []);
+
+  const activeAlarmsCount = alarms.filter(a => a.is_active).length;
+  const nextAlarm = alarms.filter(a => a.is_active).sort((a, b) => a.alarm_time.localeCompare(b.alarm_time))[0];
 
   return (
     <div className="dashboard">
@@ -38,9 +62,9 @@ export default function Dashboard() {
           </h2>
           <p>Manage your cognitive alarms effortlessly.</p>
         </div>
-        <button type="button" className="btn-gradient btn-inline">
+        <Link to="/alarms" className="btn-gradient btn-inline">
           <FaPlus /> New Alarm
-        </button>
+        </Link>
       </div>
 
       <div className="stat-grid">
@@ -50,8 +74,8 @@ export default function Dashboard() {
           </div>
           <div>
             <p className="stat-label">Active Alarms</p>
-            <h3>3</h3>
-            <p className="stat-sub">You have 3 alarms set</p>
+            <h3>{activeAlarmsCount}</h3>
+            <p className="stat-sub">You have {activeAlarmsCount} active alarms set</p>
           </div>
         </div>
 
@@ -72,8 +96,8 @@ export default function Dashboard() {
           </div>
           <div>
             <p className="stat-label">Next Alarm</p>
-            <h3>06:30 AM</h3>
-            <p className="stat-sub">In 2h 15m</p>
+            <h3>{nextAlarm ? nextAlarm.alarm_time : "--:--"}</h3>
+            <p className="stat-sub">{nextAlarm ? "Scheduled" : "No active alarms"}</p>
           </div>
         </div>
       </div>
@@ -83,19 +107,23 @@ export default function Dashboard() {
           <FaCalendarAlt /> Upcoming Alarms
         </h3>
         <div className="alarm-list">
-          {alarms.map(({ id, time, task, status, icon: Icon }) => (
-            <div className="alarm-item" key={id}>
-              <div className={`alarm-icon ${status}`}>
-                <Icon />
+          {alarms.length > 0 ? alarms.map((alarm) => {
+            const Icon = getCategoryIcon(alarm.challenge_category);
+            const statusKey = alarm.is_active ? "active" : "inactive";
+            return (
+              <div className="alarm-item" key={alarm.id}>
+                <div className={`alarm-icon ${statusKey}`}>
+                  <Icon />
+                </div>
+                <div className="alarm-info">
+                  <h4>{alarm.alarm_time}</h4>
+                  <p className="capitalize">{alarm.challenge_category} Challenge</p>
+                </div>
+                <span className={`alarm-status ${statusKey}`}>{statusLabel[alarm.is_active]}</span>
+                <FaChevronRight className="alarm-chevron" />
               </div>
-              <div className="alarm-info">
-                <h4>{time}</h4>
-                <p>{task}</p>
-              </div>
-              <span className={`alarm-status ${status}`}>{statusLabel[status]}</span>
-              <FaChevronRight className="alarm-chevron" />
-            </div>
-          ))}
+            );
+          }) : <p>No alarms found. Create one!</p>}
         </div>
       </div>
 
