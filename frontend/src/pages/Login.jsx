@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEnvelope, FaLock, FaBrain } from "react-icons/fa";
-import { authService } from "../services/authService";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const login = useAuthStore(state => state.login);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -16,12 +17,12 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await authService.login(form);
+      await login(form.email, form.password);
       // This navigate() call is the piece that's easy to miss —
       // without it, a successful login has nowhere to send the user.
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.detail || err.message);
     } finally {
       setLoading(false);
     }
