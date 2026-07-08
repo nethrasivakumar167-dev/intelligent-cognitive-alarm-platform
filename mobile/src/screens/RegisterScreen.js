@@ -1,32 +1,35 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { mobileApi } from "../services/api";
 
-export default function LoginScreen({ navigation }) {
+export default function RegisterScreen({ navigation }) {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const login = async () => {
+  const register = async () => {
     try {
-      const requestBody = `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-
-      const response = await mobileApi.post("/auth/login", requestBody, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      await mobileApi.post("/auth/register", {
+        full_name: fullName,
+        email: email,
+        password: password,
       });
-
-      const token = response.data.access_token;
-      await AsyncStorage.setItem("user_token", token);
-      
-      navigation.replace("Main");
+      Alert.alert("Success", "Registration successful. Please login.");
+      navigation.navigate("Login");
     } catch (error) {
-      Alert.alert("Login Failed", error.response?.data?.detail || "Invalid credentials");
+      Alert.alert("Error", error.response?.data?.detail || "Registration failed");
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Intelligent Cognitive Alarm</Text>
+      <Text style={styles.title}>Register</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name"
+        value={fullName}
+        onChangeText={setFullName}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -42,9 +45,9 @@ export default function LoginScreen({ navigation }) {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={login} />
+      <Button title="Register" onPress={register} />
       <View style={styles.spacer} />
-      <Button title="Create Account" onPress={() => navigation.navigate("Register")} type="clear" />
+      <Button title="Back to Login" onPress={() => navigation.navigate("Login")} type="clear" />
     </View>
   );
 }
