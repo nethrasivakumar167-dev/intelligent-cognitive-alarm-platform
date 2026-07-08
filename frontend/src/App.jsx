@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -9,6 +10,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import "./index.css";
 import "./App.css";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 
 function DashboardLayout() {
   return (
@@ -21,6 +23,10 @@ function DashboardLayout() {
 
 function App() {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const init = useAuthStore(state => state.init);
+
+  // Re-hydrate user from /auth/me on every page load
+  useEffect(() => { init(); }, []);
 
   return (
     <BrowserRouter>
@@ -45,6 +51,17 @@ function App() {
               <Navbar />
               <div className="max-w-7xl mx-auto p-4">
                 <Profile />
+              </div>
+            </>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <>
+              <Navbar />
+              <div className="max-w-7xl mx-auto p-4">
+                <Admin />
               </div>
             </>
           }
