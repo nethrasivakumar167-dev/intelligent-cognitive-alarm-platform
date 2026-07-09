@@ -8,10 +8,14 @@ import {
   FaExclamationCircle,
   FaUserCircle,
   FaSun,
+  FaEnvelope,
 } from "react-icons/fa";
 import { apiClient } from "../api/client";
 import { SnoozeSettingsPage } from "./SnoozeSettings";
+import { useAuthStore } from "../store/useAuthStore";
+
 export default function Profile() {
+  const user = useAuthStore((state) => state.user);
   const [profile, setProfile] = useState({
     preferred_wake_time: "07:00",
     target_sleep_hours: 8,
@@ -124,6 +128,32 @@ export default function Profile() {
               </h2>
             </div>
             <form className="space-y-5" onSubmit={handleSave}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <FaUserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <div className="w-full bg-slate-100 border border-slate-200 text-slate-600 rounded-lg pl-10 pr-4 py-2 select-none">
+                      {user?.full_name || user?.username || "—"}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <div className="w-full bg-slate-100 border border-slate-200 text-slate-600 rounded-lg pl-10 pr-4 py-2 select-none">
+                      {user?.email || "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                   Preferred Wake-up Time
