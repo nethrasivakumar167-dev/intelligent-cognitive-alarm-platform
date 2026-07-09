@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Practice from "./pages/Practice";
 import { AlarmsPage } from "./pages/Alarms";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
@@ -44,6 +45,16 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardLayout />} />
+
+          <Route
+            path="/practice"
+            element={
+              <>
+                <Navbar />
+                <Practice />
+              </>
+            }
+          />
 
           <Route
             path="/alarms"
