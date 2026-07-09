@@ -9,6 +9,7 @@ from app.api.v1.sessions import router as sessions_router
 from app.api.v1.verify import router as verify_router
 from app.api.v1.profile import router as profile_router
 from app.api.v1.admin import router as admin_router
+from app.api.v1.snooze import router as snooze_router
 from app.db.session import engine, Base
 # Ensure models are imported so SQLAlchemy metadata is populated
 from app.db import base as _models
@@ -35,6 +36,7 @@ app.include_router(sessions_router, prefix=f"{settings.API_V1_STR}/sessions", ta
 app.include_router(verify_router, prefix=f"{settings.API_V1_STR}/challenges", tags=["Verification"])
 app.include_router(profile_router, prefix=f"{settings.API_V1_STR}/profile", tags=["Profile"])
 app.include_router(admin_router, prefix=f"{settings.API_V1_STR}/admin", tags=["Admin"])
+app.include_router(snooze_router, prefix=f"{settings.API_V1_STR}/sessions", tags=["Snooze"])
 
 @app.get("/")
 def root():
